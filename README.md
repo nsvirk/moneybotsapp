@@ -3,5 +3,5 @@
 ## Description
 
 - This is a app for the Moneybots project.
-- It's backend REST API is in written in GO based on Pocketbase.
+- It's backend Rest API is in written in Go and based on Pocketbase.
 - Its frontend UI is written in Vuejs.
