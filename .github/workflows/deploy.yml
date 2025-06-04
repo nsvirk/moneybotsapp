@@ -21,7 +21,12 @@ jobs:
 
       - name: Build application
         run: |
-          CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o moneybotsapp .
+          # Build for ARM64 (aarch64) architecture
+          CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -a -installsuffix cgo -o moneybotsapp .
+
+          # Verify the built binary
+          file moneybotsapp
+          ls -la moneybotsapp
 
       - name: Create deployment package
         run: |

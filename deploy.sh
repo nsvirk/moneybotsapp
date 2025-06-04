@@ -22,6 +22,11 @@ echo "Copying application binary..."
 cp $APP_NAME $APP_DIR/
 chmod +x $APP_DIR/$APP_NAME
 
+# Verify binary is executable and check architecture
+echo "Verifying binary..."
+ls -la $APP_DIR/$APP_NAME
+file $APP_DIR/$APP_NAME
+
 # Copy and install systemd service
 echo "Installing systemd service..."
 cp $APP_NAME.service /etc/systemd/system/
