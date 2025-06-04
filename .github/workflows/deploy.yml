@@ -1,0 +1,54 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.21"
+
+      - name: Build application
+        run: |
+          CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o moneybotsapp .
+
+      - name: Create deployment package
+        run: |
+          mkdir -p deploy
+          cp moneybotsapp deploy/
+          cp deploy.sh deploy/
+          cp moneybotsapp.service deploy/
+          tar -czf deploy.tar.gz deploy/
+
+      - name: Copy files to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "deploy.tar.gz"
+          target: "/home/${{ secrets.EC2_USER }}/"
+
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/${{ secrets.EC2_USER }}
+            tar -xzf deploy.tar.gz
+            cd deploy
+            chmod +x deploy.sh
+            sudo ./deploy.sh
